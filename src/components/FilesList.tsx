@@ -2,14 +2,17 @@ import {
   Button,
   Flex,
   Image,
+  Link,
   Table,
   TableContainer,
+  Tbody,
   Td,
   Text,
   Tr,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import apiClient from "../services/api-client";
+import pdfIcon from "../assets/pdf.png";
 
 interface Props {
   filesList: string[];
@@ -37,28 +40,45 @@ const FilesList = ({ filesList }: Props) => {
   return (
     <TableContainer>
       <Table>
-        {files?.map((file, index) => (
-          <Tr key={index}>
-            <Td>
-              <Flex justifyContent="space-between" alignItems="center">
-                <Flex columnGap="10px" alignItems="center">
-                  <Image
-                    boxSize="80px"
-                    objectFit="cover"
-                    src={
-                      apiClient.storage.from("asset").getPublicUrl(file).data
-                        .publicUrl
-                    }
-                  />
-                  <Text>{file}</Text>
+        <Tbody>
+          {files?.map((file, index) => (
+            <Tr key={index}>
+              <Td>
+                <Flex justifyContent="space-between" alignItems="center">
+                  <Flex columnGap="10px" alignItems="center">
+                    {file.endsWith(".pdf") ? (
+                      <Image boxSize="80px" objectFit="cover" src={pdfIcon} />
+                    ) : (
+                      <Image
+                        boxSize="80px"
+                        objectFit="cover"
+                        src={
+                          apiClient.storage.from("asset").getPublicUrl(file)
+                            .data.publicUrl
+                        }
+                      />
+                    )}
+                    <Text>{file}</Text>
+                  </Flex>
+                  <Flex alignItems="center" columnGap="10px">
+                    <Link
+                      href={
+                        apiClient.storage.from("asset").getPublicUrl(file).data
+                          .publicUrl
+                      }
+                      download
+                    >
+                      Download
+                    </Link>
+                    <Button colorScheme="red" onClick={() => handleClick(file)}>
+                      Delete
+                    </Button>
+                  </Flex>
                 </Flex>
-                <Button colorScheme="red" onClick={() => handleClick(file)}>
-                  Delete
-                </Button>
-              </Flex>
-            </Td>
-          </Tr>
-        ))}
+              </Td>
+            </Tr>
+          ))}
+        </Tbody>
       </Table>
     </TableContainer>
   );
