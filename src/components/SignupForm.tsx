@@ -1,22 +1,25 @@
-import { Button, Input, Text, VStack } from "@chakra-ui/react";
+import { Button, Heading, Input, Text, VStack } from "@chakra-ui/react";
 import { useState } from "react";
 import apiClient from "../services/api-client";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./AuthForm.css";
 
 const SignupForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleClick = () => {
-    apiClient.auth
-      .signUp({ email, password })
-      .then((res) => console.log(res.data));
+    apiClient.auth.signUp({ email, password }).then((res) => {
+      console.log(res.data);
+      navigate("/");
+    });
   };
 
   return (
     <form>
-      <VStack spacing="18px" padding="10px">
+      <VStack spacing="18px" padding="10px" maxWidth="560px" margin="24px auto">
+        <Heading>Create a new account</Heading>
         <Input
           type="email"
           placeholder="Your email"

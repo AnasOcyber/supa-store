@@ -7,7 +7,12 @@ interface Props {
 
 const FilesList = ({ filesList }: Props) => {
   return (
-    <OrderedList fontSize="18px" padding="10px" listStyleType="none">
+    <OrderedList
+      fontSize="18px"
+      padding="10px"
+      listStyleType="none"
+      spacing="24px"
+    >
       {filesList?.map((file, index) => (
         <ListItem key={index}>
           <HStack>
