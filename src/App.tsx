@@ -38,7 +38,6 @@ function App() {
       templateAreas={{ sm: `"form" "files"`, lg: `"form files"` }}
       padding="10px"
       marginTop="24px"
-      alignItems="center"
     >
       <GridItem area="form">
         {!isLoggedIn ? (

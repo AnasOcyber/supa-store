@@ -17,26 +17,22 @@ const FileInput = ({ onUpload }: Props) => {
 
   const handleClick = async () => {
     if (file) {
-      try {
-        const { data } = await apiClient.storage
-          .from("asset")
-          .upload(file.name, file);
+      const { data, error } = await apiClient.storage
+        .from("asset")
+        .upload(file.name, file);
 
-        if (data) {
-          onUpload(file.name);
-        }
-      } catch (error: any) {
-        setError(error.message);
-      }
+      if (data) onUpload(file.name);
+
+      if (error) setError(error.message);
     }
   };
 
   return (
     <>
       {error && <Text color="red">{error}</Text>}
-      <HStack marginTop="10px">
-        <Input onChange={handleChange} type="file" width="500px" />
-        <Button type="submit" onClick={handleClick}>
+      <HStack marginTop="24px" spacing="24px">
+        <Input onChange={handleChange} type="file" width="420px" />
+        <Button colorScheme="green" type="submit" onClick={handleClick}>
           Upload
         </Button>
       </HStack>
