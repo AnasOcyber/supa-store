@@ -1,12 +1,14 @@
 import { Button, HStack, Input, Text } from "@chakra-ui/react";
 import { ChangeEvent, useState } from "react";
 import apiClient from "../services/api-client";
+import { Session } from "@supabase/supabase-js";
 
 interface Props {
   onUpload: (fileName: string) => void;
+  userSession?: Session;
 }
 
-const FileInput = ({ onUpload }: Props) => {
+const FileInput = ({ onUpload, userSession }: Props) => {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
 
@@ -16,10 +18,12 @@ const FileInput = ({ onUpload }: Props) => {
   };
 
   const handleClick = async () => {
-    if (file) {
+    if (file && userSession) {
+      const filePath = `${userSession.user.id}/${file.name}`;
+
       const { data, error } = await apiClient.storage
         .from("asset")
-        .upload(file.name, file);
+        .upload(filePath, file);
 
       if (data) onUpload(file.name);
 

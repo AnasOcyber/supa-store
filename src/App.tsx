@@ -1,4 +1,5 @@
 import { Button, Grid, GridItem, HStack, Text } from "@chakra-ui/react";
+import { Session } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import FileInput from "./components/FileInput";
@@ -10,28 +11,34 @@ function App() {
   const [error, setError] = useState("");
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [filesList, setFilesList] = useState<string[]>([]);
+  const [userSession, setUserSession] = useState<Session>();
 
   useEffect(() => {
     apiClient.auth
       .getSession()
-      .then(({ data }) => data.session?.access_token && setLoggedIn(true));
-  }, [isLoggedIn]);
+      .then(({ data: { session } }) => session && setUserSession(session));
+  }, []);
 
   useEffect(() => {
-    async function fetchFiles() {
-      const { data, error } = await apiClient.storage.from("asset").list();
+    setLoggedIn(!!userSession?.access_token);
+  }, [userSession]);
 
-      if (error) setError(error.message);
-      else {
-        const fileList = data?.map(
-          (file: any) => !file.name.startsWith(".") && file.name
-        );
-        setFilesList(fileList);
+  useEffect(() => {
+    const fetchFiles = async () => {
+      if (userSession?.user) {
+        const { data, error } = await apiClient.storage
+          .from("asset")
+          .list(userSession.user.id);
+
+        if (data) {
+          const fileList = data?.map((file) => file.name).filter(Boolean) || [];
+          setFilesList(fileList);
+        } else setError(error.message);
       }
-    }
+    };
 
     fetchFiles();
-  }, [fileName]);
+  }, [userSession, fileName]);
 
   return (
     <Grid
@@ -50,14 +57,19 @@ function App() {
             </Button>
           </HStack>
         ) : (
-          <FileInput onUpload={(fileName) => setFileName(fileName)} />
+          <FileInput
+            onUpload={(fileName) =>
+              setFileName(`${userSession?.user.id}/${fileName}`)
+            }
+            userSession={userSession}
+          />
         )}
       </GridItem>
       <GridItem area="files">
         {!isLoggedIn ? (
           <Text>Please log in to view the content</Text>
         ) : (
-          <FilesList filesList={filesList} />
+          <FilesList filesList={filesList} userSession={userSession} />
         )}
         {error && <Text color="red">{error}</Text>}
       </GridItem>
